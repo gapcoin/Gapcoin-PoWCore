@@ -293,7 +293,7 @@ class PoWUtils {
     static const int64_t target_spacing = 150;
 
     /* log(target_spacing) * 2^48 */
-    static const uint64_t log_150_48 = 0x502b8fea053a6;
+    static const uint64_t log_150_48 = 0x502b8fea053a6LL;
 
     /* 1.0 / 2^47 (for debugging) (not 48 bytes because rounding errors could count as failure) */
     static const double accuracy = 7.105427357601002e-15;
