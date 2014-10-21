@@ -1,7 +1,7 @@
 /**
  * Template for processing Gapcoins PoW.
  *
- * Copyright (C)  2014  The Gapcoin developers  <info@gapcoin.org>
+ * Copyright (C)  2014  Jonny Frey  <j0nn9.fr39@gmail.com>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,11 @@ class PoWProcessor {
 
   PoWProcessor() { }
   virtual ~PoWProcessor() { }
+
+  /**
+   * should process a given PoW (e.g validate it and so on)
+   * should return whether to continue calculating or not
+   */
   virtual bool process(PoW *pow) = 0;
 
 };
