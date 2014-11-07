@@ -113,6 +113,7 @@ class PoW {
     void     get_adder(vector<uint8_t> *adder);
     void     set_adder(mpz_t mpz_adder);
     void     set_adder(vector<uint8_t> *adder);
+    uint64_t get_target();
 
   private :
     

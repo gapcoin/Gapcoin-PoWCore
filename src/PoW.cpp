@@ -277,6 +277,10 @@ void PoW::set_adder(vector<uint8_t> *adder) {
     ary_to_mpz(mpz_adder, adder->data(), adder->size());
 }
 
+uint64_t PoW::get_target() {
+  return target_difficulty;
+}
+
 /* returns a string representation of this */
 string PoW::to_s() {
   stringstream ss;
