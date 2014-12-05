@@ -84,30 +84,19 @@ class Sieve {
     double primes_per_sec();
 
     /**
-     * returns the 10 gaps per hour
-     */
-    double gaps10_per_hour();
-
-    /**
-     * returns the 15 gaps per hour
-     */
-    double gaps15_per_hour();
-
-    /**
      * returns the average primes per seconds
      */
     double avg_primes_per_sec();
 
     /**
-     * returns the average 10 gaps per hour
+     * returs the prime tests per second
      */
-    double avg_gaps10_per_hour();
+    double tests_per_second();
 
     /**
-     * returns average the 15 gaps per hour
+     * returs average the prime tests per second
      */
-    double avg_gaps15_per_hour();
-
+    double avg_tests_per_second();
 
     /**
      * returns the estimated gaps (blocks) per day
@@ -148,23 +137,17 @@ class Sieve {
     /* overall found primes */
     uint64_t found_primes;
 
-    /* overall found gaps > 10 */
-    uint64_t gaps10;
+    /* overall prime tests */
+    uint64_t tests;
 
-    /* overall found gaps > 15 */
-    uint64_t gaps15;
+    /* current prime tests */
+    uint64_t cur_tests;
 
     /* passed time mining */
     uint64_t passed_time;
 
     /* current found primes */
     uint64_t cur_found_primes;
-
-    /* current found gaps > 10 */
-    uint64_t cur_gaps10;
-
-    /* current found gaps > 15 */
-    uint64_t cur_gaps15;
 
     /* time passed since the last interval */
     uint64_t cur_passed_time;
