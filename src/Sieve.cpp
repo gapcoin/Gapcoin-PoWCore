@@ -102,9 +102,9 @@ Sieve::Sieve(PoWProcessor *pprocessor, uint64_t n_primes, uint64_t sievesize) {
   this->found_primes     = 0;
   this->tests            = 0;
   this->cur_tests        = 0;
-  this->passed_time      = 0;
+  this->passed_time      = 1;
   this->cur_found_primes = 0;
-  this->cur_passed_time  = 0;
+  this->cur_passed_time  = 1;
   this->reset_stats      = true;
   this->sieve            = (sieve_t *) malloc(this->sievesize / 8);
   this->primes           = (sieve_t *) malloc(sizeof(sieve_t) * n_primes);
@@ -160,7 +160,7 @@ void Sieve::run_sieve(PoW *pow, vector<uint8_t> *offset) {
     reset_stats      = false;
     cur_found_primes = 0;
     cur_tests        = 0;
-    cur_passed_time  = 0;
+    cur_passed_time  = 1;
   }
     
 
