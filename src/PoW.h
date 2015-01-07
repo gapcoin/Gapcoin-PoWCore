@@ -31,11 +31,10 @@
 #include "PoWUtils.h"
 
 /**
- * Compile time opt-in protection
+ * Compile time opt-out protection
  * from dos attacks with high shift
- * (uncomment this)
  */
-//#define MAX_SHIFT 512
+#define MAX_SHIFT 1024
 
 
 using namespace std;
