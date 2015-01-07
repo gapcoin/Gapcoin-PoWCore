@@ -190,7 +190,7 @@ void Sieve::run_sieve(PoW *pow, vector<uint8_t> *offset) {
   calc_muls();
 
   /* sieve all small primes (skip 2) */
-  for (sieve_t i = 1; i < n_primes; i++) {
+  for (sieve_t i = 4; i < n_primes; i++) {
 
     /**
      * sieve all odd multiplies of the current prime
@@ -202,42 +202,66 @@ void Sieve::run_sieve(PoW *pow, vector<uint8_t> *offset) {
   /* make sure min_len is divisible by two */
   sieve_t min_len    = pow->target_size(mpz_start) & ~((sieve_t) 1);
   sieve_t i          = 1;
-  sieve_t start      = sievesize;
+  sieve_t start      = sievesize + 4;
+
+  sieve_t offset3 = 3 - mpz_tdiv_ui(mpz_start, 3);
+  sieve_t offset5 = 5 - mpz_tdiv_ui(mpz_start, 5);
+  sieve_t offset7 = 7 - mpz_tdiv_ui(mpz_start, 7);
+
+  // x mod n == 0: no offset, set to 0
+  if (offset3 == 3) offset3 = 0;
+  if (offset5 == 5) offset5 = 0;
+  if (offset7 == 7) offset7 = 0;
 
   /* find the first prime */
   for (/* declared */; i < sievesize; i += 2) {
     
     if (is_prime(sieve, i)) {
+      if((i % 3) == offset3) continue;
+      if((i % 5) == offset5) continue;
+      if((i % 7) == offset7) continue;
+
       cur_tests++;
       tests++;
       mpz_add_ui(mpz_tmp, mpz_start, i);
 
-      if (fermat_test(mpz_tmp)) {
-        start = i;
+      if (fermat_test(mpz_tmp))
         break;
-      }
     }
   }
 
+  start = i;
+  i    += min_len;
+
   /* scan the sieve in steps of size min_len */
-  for (/* declared */; i < sievesize; i += min_len) {
+  bool finished = false;
+  while (i < sievesize && !finished) {
     
     /* scan the current gap */
     for (/* declared */; i > start; i -= 2) {
 
       if (is_prime(sieve, i)) {
+        if((i % 3) == offset3) continue;
+        if((i % 5) == offset5) continue;
+        if((i % 7) == offset7) continue;
+
         cur_tests++;
         tests++;
         mpz_add_ui(mpz_tmp, mpz_start, i);
      
         if (fermat_test(mpz_tmp)) {
           start = i;
-          break;
+          i += min_len + 2;
+
+          if (i >= sievesize) {
+            i = 2;
+            finished = true;
+          }
         }
       }
     }
 
-    if (i == start) {
+    if (!finished) {
       mpz_set_ui64(mpz_adder, (uint64_t) start);
       mpz_add(mpz_adder, mpz_adder, mpz_offset);
  
@@ -247,7 +271,7 @@ void Sieve::run_sieve(PoW *pow, vector<uint8_t> *offset) {
         pprocessor->process(pow);
       }
 
-      i += min_len;
+      i += min_len << 1;
     }
   }
 
