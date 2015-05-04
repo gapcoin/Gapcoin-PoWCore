@@ -31,6 +31,63 @@
 
 using namespace std;
 
+#if __WORDSIZE == 64
+/**
+ * Sets the given bit-position in a 64-bit array
+ */
+#define set_bit(ary, i) (ary[(i) >> 6] |= (1L << ((i) & 0x3f)))
+    
+/**
+ * Unset the given bit-position in a 64-bit array
+ */
+#define unset_bit(ary, i) (ary[(i) >> 6] &= ~(1L << ((i) & 0x3f)))
+
+/**
+ * returns whether the given bit-position in a 64-bit array is set or not
+ */
+#define bit_at(ary, i) (ary[(i) >> 6] & (1L << ((i) & 0x3f)))
+#else
+/**
+ * Sets the given bit-position in a 32-bit array
+ */
+#define set_bit(ary, i) (ary[(i) >> 5] |= (1 << ((i) & 0x1f)))
+    
+/**
+ * Unset the given bit-position in a 32-bit array
+ */
+#define unset_bit(ary, i) (ary[(i) >> 5] &= ~(1 << ((i) & 0x1f)))
+
+/**
+ * returns whether the given bit-position in a 32-bit array is set or not
+ */
+#define bit_at(ary, i) (ary[(i) >> 5] & (1 << ((i) & 0x1f)))
+#endif
+
+/**
+ * returns whether the given index is a prime or not
+ */
+#define is_prime(ary, i) !bit_at(ary, i)
+
+/**
+ * marks the given index in the given array as composite
+ */
+#define set_composite(ary, i) set_bit(ary, i)
+
+/**
+ * sets x to the next greater number divisible by y
+ */
+#define bound(x, y) ((((x) + (y) - 1) / (y)) * (y))
+
+/**
+ * returns the sieve limit for an simple sieve of Eratosthenes
+ */
+#define sieve_limit(x) ((uint64_t) (sqrt((double) (x)) + 1))
+
+/**
+ * generate x^2
+ */
+#define POW(X) ((X) * (X))
+
 /**
  * define the sieve array word size
  */
