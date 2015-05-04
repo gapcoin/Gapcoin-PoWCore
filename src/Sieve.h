@@ -89,12 +89,22 @@ class Sieve {
     double avg_primes_per_sec();
 
     /**
-     * returs the prime tests per second
+     * returns the prime gaps per second
+     */
+    double gaps_per_second();
+
+    /**
+     * returns average the prime gaps per second
+     */
+    double avg_gaps_per_second();
+
+    /**
+     * returns the prime tests per second
      */
     double tests_per_second();
 
     /**
-     * returs average the prime tests per second
+     * returns average the prime tests per second
      */
     double avg_tests_per_second();
 
@@ -137,6 +147,12 @@ class Sieve {
     /* overall found primes */
     uint64_t found_primes;
 
+    /* overall prime gaps */
+    uint64_t n_gaps;
+
+    /* current prime gaps */
+    uint64_t cur_n_gaps;
+
     /* overall prime tests */
     uint64_t tests;
 
@@ -151,9 +167,6 @@ class Sieve {
 
     /* time passed since the last interval */
     uint64_t cur_passed_time;
-
-    /* indicates that the current statistics should be reseted */
-    bool reset_stats;
 
     /* callback object to process an calculated PoW */
     PoWProcessor *pprocessor;

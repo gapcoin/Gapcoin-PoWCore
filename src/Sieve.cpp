@@ -100,12 +100,13 @@ Sieve::Sieve(PoWProcessor *pprocessor, uint64_t n_primes, uint64_t sievesize) {
   this->sievesize        = bound(sievesize, sizeof(sieve_t) * 8);
   this->n_primes         = n_primes;
   this->found_primes     = 0;
+  this->n_gaps           = 0;
+  this->cur_n_gaps       = 0;
   this->tests            = 0;
   this->cur_tests        = 0;
   this->passed_time      = 1;
   this->cur_found_primes = 0;
   this->cur_passed_time  = 1;
-  this->reset_stats      = true;
   this->sieve            = (sieve_t *) malloc(this->sievesize / 8);
   this->primes           = (sieve_t *) malloc(sizeof(sieve_t) * n_primes);
   this->primes2          = (sieve_t *) malloc(sizeof(sieve_t) * n_primes);
@@ -156,14 +157,6 @@ void Sieve::run_sieve(PoW *pow, vector<uint8_t> *offset) {
   /* speed measurement */
   uint64_t start_time = PoWUtils::gettime_usec();
   
-  if (reset_stats) {
-    reset_stats      = false;
-    cur_found_primes = 0;
-    cur_tests        = 0;
-    cur_passed_time  = 1;
-  }
-    
-
   mpz_t mpz_offset;
   mpz_init_set_ui64(mpz_offset, 0);
 
@@ -235,6 +228,8 @@ void Sieve::run_sieve(PoW *pow, vector<uint8_t> *offset) {
 
   /* scan the sieve in steps of size min_len */
   bool finished = false;
+  uint64_t n_test = 0;
+  uint64_t gap_count = 0;
   while (i < sievesize && !finished) {
     
     /* scan the current gap */
@@ -245,13 +240,13 @@ void Sieve::run_sieve(PoW *pow, vector<uint8_t> *offset) {
         if((i % 5) == offset5) continue;
         if((i % 7) == offset7) continue;
 
-        cur_tests++;
-        tests++;
+        n_test++;
         mpz_add_ui(mpz_tmp, mpz_start, i);
      
         if (fermat_test(mpz_tmp)) {
           start = i;
           i += min_len + 2;
+          gap_count++;
 
           if (i >= sievesize) {
             i = 2;
@@ -262,13 +257,15 @@ void Sieve::run_sieve(PoW *pow, vector<uint8_t> *offset) {
     }
 
     if (!finished) {
+      gap_count++;
       mpz_set_ui64(mpz_adder, (uint64_t) start);
       mpz_add(mpz_adder, mpz_adder, mpz_offset);
  
       pow->set_adder(mpz_adder);
  
       if (pow->valid()) {
-        pprocessor->process(pow);
+        if (pprocessor->process(pow))
+          i = sievesize;
       }
 
       i += min_len << 1;
@@ -279,11 +276,17 @@ void Sieve::run_sieve(PoW *pow, vector<uint8_t> *offset) {
   mpz_clear(mpz_adder);
   mpz_clear(mpz_tmp);
   passed_time     += PoWUtils::gettime_usec() - start_time;
-  cur_passed_time += PoWUtils::gettime_usec() - start_time;
+  cur_passed_time  = (cur_passed_time + 3 * (PoWUtils::gettime_usec() - start_time)) / 4;
+
+  tests += n_test;
+  cur_tests = (cur_tests + 3 * n_test) / 4;
+
+  n_gaps += gap_count;
+  cur_n_gaps = (cur_n_gaps + 3 * gap_count) / 4;
 
   /* approximate the number of primes within the sieve */
   double log_start = log(mpz_get_d(mpz_start));
-  cur_found_primes += sievesize / log_start;
+  cur_found_primes = (cur_found_primes + 3 * (sievesize / log_start)) / 4;
   found_primes += sievesize / log_start;
 
   if (debug && is_sieve_valid(i))
@@ -296,8 +299,12 @@ void Sieve::run_sieve(PoW *pow, vector<uint8_t> *offset) {
  * returns the average primes per seconds
  */
 double Sieve::avg_primes_per_sec() {
-  return ((double)  found_primes) / 
-         (((double) passed_time) / 1000000.0L);
+
+  if (passed_time < 10)
+    return 0;
+
+  return (((double)  found_primes) / 
+         ((double) passed_time)) * 1000000.0L;
 }
 
 
@@ -305,12 +312,12 @@ double Sieve::avg_primes_per_sec() {
  * returns the primes per seconds
  */
 double Sieve::primes_per_sec() {
-  
-  /* reset measurement */
-  reset_stats = true;
 
-  return ((double)  cur_found_primes) / 
-         (((double) cur_passed_time) / 1000000.0L);
+  if (passed_time < 10)
+    return 0;
+
+  return (((double)  cur_found_primes) / 
+         ((double) cur_passed_time)) * 1000000.0L;
 }
 
 
@@ -321,21 +328,52 @@ uint64_t Sieve::get_found_primes() {
   return found_primes;
 }
 
-
 /**
- * returs the prime tests per second
+ * returns the prime gaps per second
  */
-double Sieve::tests_per_second() {
-  return ((double)  cur_tests) / 
-         (((double) cur_passed_time) / 1000000.0L);
+double Sieve::gaps_per_second() {
+
+  if (passed_time < 10)
+    return 0;
+
+  return (((double)  cur_n_gaps) / 
+         ((double) cur_passed_time)) * 1000000.0L;
 }
 
 /**
- * returs average the prime tests per second
+ * returns average the prime gaps per second
+ */
+double Sieve::avg_gaps_per_second() {
+
+  if (passed_time < 10)
+    return 0;
+
+  return (((double)  n_gaps) / 
+         ((double) passed_time)) * 1000000.0L;
+}
+
+/**
+ * returns the prime tests per second
+ */
+double Sieve::tests_per_second() {
+
+  if (passed_time < 10)
+    return 0;
+
+  return (((double)  cur_tests) / 
+         ((double) cur_passed_time)) * 1000000.0L;
+}
+
+/**
+ * returns average the prime tests per second
  */
 double Sieve::avg_tests_per_second() {
-  return ((double)  tests) / 
-         (((double) passed_time) / 1000000.0L);
+
+  if (passed_time < 10)
+    return 0;
+
+  return (((double)  tests) / 
+         ((double) passed_time)) * 1000000.0L;
 }
 
 
