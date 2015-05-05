@@ -245,10 +245,9 @@ double Sieve::avg_primes_per_sec() {
   if (passed_time < 10)
     return 0;
 
-  return (((double)  found_primes) / 
-         ((double) passed_time)) * 1000000.0L;
+  return (((double) found_primes) * 1000000.0L) / 
+         ((double) passed_time);
 }
-
 
 /**
  * returns the primes per seconds
@@ -258,8 +257,8 @@ double Sieve::primes_per_sec() {
   if (passed_time < 10)
     return 0;
 
-  return (((double)  cur_found_primes) / 
-         ((double) cur_passed_time)) * 1000000.0L;
+  return (((double) cur_found_primes) * 1000000.0L) / 
+         ((double) cur_passed_time);
 }
 
 
@@ -278,8 +277,8 @@ double Sieve::gaps_per_second() {
   if (passed_time < 10)
     return 0;
 
-  return (((double)  cur_n_gaps) / 
-         ((double) cur_passed_time)) * 1000000.0L;
+  return (((double)  cur_n_gaps) * 1000000.0L) / 
+         ((double) cur_passed_time);
 }
 
 /**
@@ -290,8 +289,8 @@ double Sieve::avg_gaps_per_second() {
   if (passed_time < 10)
     return 0;
 
-  return (((double)  n_gaps) / 
-         ((double) passed_time)) * 1000000.0L;
+  return (((double)  n_gaps) * 1000000.0L) / 
+         ((double) passed_time);
 }
 
 /**
@@ -302,8 +301,8 @@ double Sieve::tests_per_second() {
   if (passed_time < 10)
     return 0;
 
-  return (((double)  cur_tests) / 
-         ((double) cur_passed_time)) * 1000000.0L;
+  return (((double) cur_tests) * 1000000.0L)  / 
+         ((double) cur_passed_time);
 }
 
 /**
@@ -314,8 +313,8 @@ double Sieve::avg_tests_per_second() {
   if (passed_time < 10)
     return 0;
 
-  return (((double)  tests) / 
-         ((double) passed_time)) * 1000000.0L;
+  return (((double)  tests) * 1000000.0L) / 
+         ((double) passed_time);
 }
 
 
