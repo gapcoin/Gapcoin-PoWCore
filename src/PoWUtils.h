@@ -296,7 +296,7 @@ class PoWUtils {
     static const uint64_t log_150_48 = 0x502b8fea053a6LL;
 
     /* 1.0 / 2^47 (for debugging) (not 48 bytes because rounding errors could count as failure) */
-    static const double accuracy = 7.105427357601002e-15;
+    const float accuracy = 7.105427357601002e-15;
 
     /**
      * calculates the log from a mpz value
